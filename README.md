@@ -3,6 +3,19 @@
 
 This is a simple chat application that uses the StableLM 2 1.6B model for generating responses.
 
+## Project Structure
+
+```
+.
+├── README.md
+├── index.html
+├── script.js
+├── style.css
+├── run_app.sh
+└── backend/
+    └── app.py
+```
+
 ## Setup
 
 1. Clone the repository:
@@ -19,15 +32,15 @@ This is a simple chat application that uses the StableLM 2 1.6B model for genera
 3. Download the model:
    The StableLM 2 1.6B model file is not included in this repository due to its large size. You need to download it separately:
    ```
-   wget https://huggingface.co/Crataco/stablelm-2-1_6b-chat-imatrix-GGUF/resolve/main/stablelm-2-1_6b-chat.Q4_K_M.imx.gguf
+   wget https://huggingface.co/Crataco/stablelm-2-1_6b-chat-imatrix-GGUF/resolve/main/stablelm-2-1_6b-chat.Q4_K_M.imx.gguf -O backend/stablelm-2-1_6b-chat.Q4_K_M.imx.gguf
    ```
 
 4. Run the application:
    ```
-   python app.py
+   ./run_app.sh
    ```
 
-5. Open `index.html` in your web browser to start chatting.
+5. Open `http://localhost:5000` in your web browser to start chatting.
 
 ## Features
 
