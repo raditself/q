@@ -7,10 +7,11 @@
         <pre v-if="message.type === 'ai' && message.isCode">{{ message.content }}</pre>
         <span v-else v-html="message.content"></span>
       </div>
+      <div v-if="isLoading" class="loading-message">AI is thinking...</div>
     </div>
     <div class="chat-input">
-      <textarea v-model="userInput" @keyup.enter.exact="sendMessage" @keyup.shift.enter="newLine" placeholder="Type your message... (Shift+Enter for new line)"></textarea>
-      <button @click="sendMessage">Send</button>
+      <textarea v-model="userInput" @keyup.enter.exact="sendMessage" @keyup.shift.enter="newLine" placeholder="Type your message... (Shift+Enter for new line)" :disabled="isLoading"></textarea>
+      <button @click="sendMessage" :disabled="isLoading">Send</button>
     </div>
     <div class="personality-slider">
       <label for="personality">AI Personality: {{ personalityLabel }}</label>
@@ -30,6 +31,7 @@
 <script>
 import axios from 'axios';
 import { ref, onUpdated, computed } from 'vue';
+import { getJson } from 'google-search-results-nodejs';
 
 export default {
   name: 'ChatInterface',
@@ -41,6 +43,7 @@ export default {
     const personality = ref(0.5);
     const expertiseLevel = ref('intermediate');
     const contextWindowSize = 10; // Number of recent messages to keep for context
+    const isLoading = ref(false);
 
     const personalityLabel = computed(() => {
       if (personality.value < 0.4) return 'Concise';
@@ -56,6 +59,31 @@ export default {
         default: return 'Intermediate';
       }
     });
+
+    const performWebSearch = async (query) => {
+      const params = {
+        engine: "google",
+        q: query,
+        api_key: process.env.VUE_APP_SERPAPI_KEY
+      };
+
+      try {
+        const results = await new Promise((resolve, reject) => {
+          getJson(params, (data) => {
+            if (data.organic_results && data.organic_results.length > 0) {
+              resolve(data.organic_results.slice(0, 3));
+            } else {
+              reject(new Error('No results found'));
+            }
+          });
+        });
+
+        return results.map(result => `${result.title}: ${result.snippet}`).join('\n');
+      } catch (error) {
+        console.error('Web search error:', error);
+        return 'Unable to perform web search at this time.';
+      }
+    };
 
     const knowledgeBase = {
       "AI": "Artificial Intelligence is the simulation of human intelligence processes by machines, especially computer systems.",
@@ -97,8 +125,9 @@ NLP combines rule-based modeling of human language with statistical, machine lea
     ];
 
     const sendMessage = async () => {
-      if (userInput.value.trim() === '') return;
+      if (userInput.value.trim() === '' || isLoading.value) return;
 
+      isLoading.value = true;
       const userMessage = userInput.value;
       messages.value.push({ type: 'user', content: userMessage });
       conversationHistory.value.push({ role: 'user', content: userMessage });
@@ -117,6 +146,14 @@ NLP combines rule-based modeling of human language with statistical, machine lea
 
       const relevantInfo = retrieveKnowledge(userMessage);
 
+      // Perform web search if knowledge base doesn't have relevant information
+      let webSearchResults = '';
+      if (!relevantInfo) {
+        messages.value.push({ type: 'system', content: 'Performing web search...' });
+        webSearchResults = await performWebSearch(userMessage);
+        messages.value.pop(); // Remove the "Performing web search..." message
+      }
+
       // Limit conversation history to the most recent messages
       const limitedHistory = conversationHistory.value.slice(-contextWindowSize);
 
@@ -127,7 +164,7 @@ NLP combines rule-based modeling of human language with statistical, machine lea
             {"role": "system", "content": `You are a highly capable AI assistant with a vast knowledge base covering a wide range of topics. Your responses should be informative, engaging, and nuanced. Always strive to provide accurate information, and when appropriate, offer multiple perspectives on complex issues. If you're unsure about something, admit it and suggest ways to find more information. Engage in thoughtful analysis and be prepared to break down complex topics into understandable parts. Always maintain high ethical standards in your responses. ${personalityInstruction} ${expertiseInstruction}`},
             ...fewShotExamples,
             ...limitedHistory,
-            {"role": "system", "content": relevantInfo}
+            {"role": "system", "content": relevantInfo || webSearchResults}
           ]
         }, {
           headers: {
@@ -150,11 +187,14 @@ NLP combines rule-based modeling of human language with statistical, machine lea
       } catch (error) {
         console.error('Error:', error);
         messages.value.push({ type: 'error', content: 'An error occurred while processing your request.' });
+      } finally {
+        isLoading.value = false;
       }
     };
 
     const newLine = () => {
-      userInput.value += '\n';
+      userInput.value += '
+';
     };
 
     onUpdated(() => {
@@ -172,7 +212,8 @@ NLP combines rule-based modeling of human language with statistical, machine lea
       personality,
       personalityLabel,
       expertiseLevel,
-      expertiseLevelLabel
+      expertiseLevelLabel,
+      isLoading
     };
   }
 };
@@ -212,11 +253,10 @@ NLP combines rule-based modeling of human language with statistical, machine lea
   resize: vertical;
 }
 
-.user, .ai, .error {
+.user, .ai, .error, .system {
   margin-bottom: 10px;
-  max-width: 80%;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 .user {
@@ -230,15 +270,19 @@ NLP combines rule-based modeling of human language with statistical, machine lea
 }
 
 .error {
-  align-self: flex-start;
+  align-self: center;
   background-color: #FFCCCB;
 }
 
-pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 4px;
+.system {
+  align-self: center;
+  background-color: #F0F0F0;
+  font-style: italic;
+}
+
+.loading-message {
+  align-self: center;
+  font-style: italic;
+  color: #888;
 }
 </style>
