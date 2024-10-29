@@ -1,21 +1,19 @@
+
 import React from 'react';
-import ChatInterface from '../components/ChatInterface';
 import CodeEditor from '../components/CodeEditor';
 import Terminal from '../components/Terminal';
 
 const Home = () => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <h1>BLACKBOXAI</h1>
-      <div style={{ display: 'flex', flexGrow: 1 }}>
-        <div style={{ width: '50%', padding: '10px' }}>
-          <h2>Chat Interface</h2>
-          <ChatInterface />
-        </div>
-        <div style={{ width: '50%', padding: '10px' }}>
-          <h2>Code Editor</h2>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">Code Editor and Terminal</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Code Editor</h2>
           <CodeEditor />
-          <h2>Terminal</h2>
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Terminal</h2>
           <Terminal />
         </div>
       </div>
@@ -24,3 +22,4 @@ const Home = () => {
 };
 
 export default Home;
+
