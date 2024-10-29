@@ -8,18 +8,30 @@ const ChatInterface = () => {
     if (input.trim() === '') return;
 
     const newMessage = { text: input, sender: 'user' };
-    setMessages([...messages, newMessage]);
+    setMessages(prevMessages => [...prevMessages, newMessage]);
     setInput('');
 
-    // TODO: Replace with actual AI service call
-    const aiResponse = await mockAIResponse(input);
-    setMessages(prevMessages => [...prevMessages, { text: aiResponse, sender: 'ai' }]);
-  };
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
+      });
 
-  // Mock AI response function (replace with actual API call later)
-  const mockAIResponse = async (message) => {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-    return `AI response to: "${message}"`;
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      const aiMessage = { text: data.response, sender: 'ai' };
+      setMessages(prevMessages => [...prevMessages, aiMessage]);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage = { text: 'Sorry, I encountered an error. Please try again.', sender: 'ai' };
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
+    }
   };
 
   return (
