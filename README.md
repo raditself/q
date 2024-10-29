@@ -1,7 +1,6 @@
+# AI-Powered Ollama UI
 
-# StableLM Chat Application
-
-This is a simple chat application that uses the StableLM 2 1.6B model for generating responses.
+This is an AI-powered user interface that integrates with Ollama, featuring a chat interface, code editor, and terminal component.
 
 ## Project Structure
 
@@ -9,9 +8,16 @@ This is a simple chat application that uses the StableLM 2 1.6B model for genera
 .
 ├── README.md
 ├── index.html
-├── script.js
-├── style.css
-├── run_app.sh
+├── src/
+│   ├── App.vue
+│   ├── main.js
+│   └── components/
+│       ├── ChatInterface.vue
+│       ├── CodeEditor.vue
+│       └── Terminal.vue
+├── public/
+├── vite.config.js
+├── package.json
 └── backend/
     └── app.py
 ```
@@ -24,44 +30,32 @@ This is a simple chat application that uses the StableLM 2 1.6B model for genera
    cd q
    ```
 
-2. Install the required packages:
+2. Install dependencies:
    ```
-   pip install flask flask-cors ctransformers requests
-   ```
-
-3. Download the model:
-   The StableLM 2 1.6B model file is not included in this repository due to its large size. It will be automatically downloaded when you run the application for the first time.
-
-4. Run the application:
-   ```
-   chmod +x run_app.sh
-   ./run_app.sh
+   npm install
    ```
 
-5. Open `http://localhost:5000` in your web browser to start chatting.
+3. Start the development server:
+   ```
+   npm run dev
+   ```
+
+4. Open the URL provided by the development server in your web browser (usually http://localhost:5173).
 
 ## Features
 
-- Simple web interface for chatting
-- Uses StableLM 2 1.6B model for generating responses
-- Automatic model download on first run
-
-## Note
-
-This application is for demonstration purposes only and should not be used in production environments without proper security measures.
-
-## Troubleshooting
-
-If you encounter any issues with downloading or running the model, please check the Hugging Face model page for the most up-to-date download link and instructions:
-https://huggingface.co/Crataco/stablelm-2-1_6b-chat-imatrix-GGUF
+- Chat interface powered by Ollama
+- Code editor with syntax highlighting
+- Terminal component for command execution
+- Vue.js-based frontend for reactive UI
 
 ## Development
 
 To make changes to the application:
 
-1. Modify the backend code in `backend/app.py`
-2. Update the frontend files: `index.html`, `script.js`, and `style.css`
-3. Test your changes locally by running the application
+1. Modify the Vue components in the `src/components/` directory
+2. Update the main App.vue file in `src/App.vue`
+3. Test your changes locally by running the development server
 4. Commit your changes and push to GitHub:
    ```
    git add .
@@ -69,4 +63,12 @@ To make changes to the application:
    git push origin main
    ```
 
-Enjoy chatting with StableLM!
+## Backend Integration
+
+The backend integration with Ollama is handled in the `backend/app.py` file. Make sure you have Ollama set up and running locally for the chat functionality to work.
+
+## Note
+
+This application is for demonstration purposes and may require additional setup and security measures for production use.
+
+Enjoy your AI-powered development environment!
