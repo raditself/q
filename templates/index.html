@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Assistant</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { display: flex; gap: 20px; }
+        .component { flex: 1; border: 1px solid #ccc; padding: 10px; }
+        textarea { width: 100%; height: 100px; }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>AI-Powered Assistant</h1>
+    <div class="container">
+        <div class="component">
+            <h2>Chat Interface</h2>
+            <textarea id="chatInput" placeholder="Enter your message"></textarea>
+            <button onclick="sendChatMessage()">Send</button>
+            <div id="chatResponse"></div>
+        </div>
+        <div class="component">
+            <h2>Code Editor</h2>
+            <textarea id="codeInput" placeholder="Enter your code"></textarea>
+            <button onclick="completeCode()">Complete</button>
+            <button onclick="explainCode()">Explain</button>
+            <div id="codeResponse"></div>
+        </div>
+        <div class="component">
+            <h2>Terminal</h2>
+            <textarea id="terminalInput" placeholder="Enter your command or description"></textarea>
+            <button onclick="suggestCommand()">Suggest</button>
+            <button onclick="explainCommand()">Explain</button>
+            <div id="terminalResponse"></div>
+        </div>
+    </div>
+
+    <script>
+        let chatContext = [];
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput').value;
+            const response = await axios.post('/chat', { message: input, context: chatContext });
+            chatContext = response.data.context;
+            document.getElementById('chatResponse').innerHTML = response.data.response;
+        }
+
+        async function completeCode() {
+            const input = document.getElementById('codeInput').value;
+            const response = await axios.post('/code_complete', { code: input });
+            document.getElementById('codeResponse').innerHTML = response.data.completion;
+        }
+
+        async function explainCode() {
+            const input = document.getElementById('codeInput').value;
+            const response = await axios.post('/code_explain', { code: input });
+            document.getElementById('codeResponse').innerHTML = response.data.explanation;
+        }
+
+        async function suggestCommand() {
+            const input = document.getElementById('terminalInput').value;
+            const response = await axios.post('/command_suggest', { input: input });
+            document.getElementById('terminalResponse').innerHTML = response.data.suggestion;
+        }
+
+        async function explainCommand() {
+            const input = document.getElementById('terminalInput').value;
+            const response = await axios.post('/command_explain', { command: input });
+            document.getElementById('terminalResponse').innerHTML = response.data.explanation;
+        }
+    </script>
+</body>
+</html>
