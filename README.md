@@ -1,18 +1,14 @@
 
 # AI-Powered Assistant with Code Execution and GitHub Integration
 
-This project is an AI-powered assistant that can chat with users, execute Python code in a secure sandbox environment, and provide GitHub-related assistance using Ollama.
+This project is an AI-powered assistant that can chat with users, provide code completion and explanation, and offer GitHub command suggestions and explanations using Ollama.
 
 ## Features
 
-- User registration and authentication
-- AI-powered chat using Ollama's GitHub-focused model
-- Secure code execution in a Docker sandbox
+- AI-powered chat for GitHub-related queries
 - AI-assisted code completion and explanation
 - AI-enhanced GitHub command suggestions and explanations
-- Rate limiting to prevent abuse
-- Containerized application for easy deployment
-- Web-based user interface for interacting with AI components
+- Modern, responsive UI
 
 ## AI-Powered Components
 
@@ -30,11 +26,9 @@ This project is an AI-powered assistant that can chat with users, execute Python
 
 ## Prerequisites
 
-- Docker
-- Docker Compose
-- Ollama (for local AI model execution)
 - Python 3.7+
 - Flask
+- Ollama (for local AI model execution)
 
 ## Setup
 
@@ -44,15 +38,13 @@ This project is an AI-powered assistant that can chat with users, execute Python
    cd q
    ```
 
-2. Create a `.env` file in the project root and add your Ollama endpoint:
-   ```
-   OLLAMA_ENDPOINT=http://localhost:11434
-   ```
-
-3. Install the required Python packages:
+2. Install the required Python packages:
    ```
    pip install -r requirements.txt
    ```
+
+3. Set up the Ollama endpoint:
+   - Make sure Ollama is running on your local machine or specify the correct endpoint in the ChatInterface, CodeEditor, and Terminal classes.
 
 4. Run the Flask application:
    ```
@@ -81,25 +73,9 @@ To run the application in development mode:
    flask run
    ```
 
-## Testing
+## Customization
 
-To run the unit tests:
-
-```
-python -m unittest discover tests
-```
-
-## Docker Deployment
-
-1. Build the Docker image:
-   ```
-   docker build -t ai-powered-assistant .
-   ```
-
-2. Run the Docker container:
-   ```
-   docker run -p 5000:5000 ai-powered-assistant
-   ```
+The UI can be further customized by modifying the `templates/index.html` file. The current design is based on a modern, responsive layout that works well on both desktop and mobile devices.
 
 ## License
 
