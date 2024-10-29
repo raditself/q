@@ -12,12 +12,16 @@
       <textarea v-model="userInput" @keyup.enter.exact="sendMessage" @keyup.shift.enter="newLine" placeholder="Type your message... (Shift+Enter for new line)"></textarea>
       <button @click="sendMessage">Send</button>
     </div>
+    <div class="personality-slider">
+      <label for="personality">AI Personality: {{ personalityLabel }}</label>
+      <input type="range" id="personality" v-model="personality" min="0" max="1" step="0.1">
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import { ref, onUpdated } from 'vue';
+import { ref, onUpdated, computed } from 'vue';
 
 export default {
   name: 'ChatInterface',
@@ -25,6 +29,13 @@ export default {
     const messages = ref([]);
     const userInput = ref('');
     const chatMessages = ref(null);
+    const personality = ref(0.5);
+
+    const personalityLabel = computed(() => {
+      if (personality.value < 0.4) return 'Concise';
+      if (personality.value > 0.6) return 'Detailed';
+      return 'Balanced';
+    });
 
     const sendMessage = async () => {
       if (userInput.value.trim() === '') return;
@@ -33,11 +44,17 @@ export default {
       messages.value.push({ type: 'user', content: userMessage });
       userInput.value = '';
 
+      const personalityInstruction = personality.value < 0.4 ? 
+        "Provide concise and brief responses." : 
+        personality.value > 0.6 ? 
+        "Provide detailed and comprehensive responses." : 
+        "Provide balanced responses with moderate detail.";
+
       try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-          model: "gpt-3.5-turbo",
+          model: "gpt-4",
           messages: [
-            {"role": "system", "content": "You are a helpful AI assistant with a broad knowledge base covering a wide range of topics including but not limited to science, history, current events, arts, culture, technology, and more. Provide informative and engaging responses on any subject."},
+            {"role": "system", "content": `You are a highly capable AI assistant with a vast knowledge base covering a wide range of topics. Your responses should be informative, engaging, and nuanced. Always strive to provide accurate information, and when appropriate, offer multiple perspectives on complex issues. If you're unsure about something, admit it and suggest ways to find more information. Engage in thoughtful analysis and be prepared to break down complex topics into understandable parts. Always maintain high ethical standards in your responses. ${personalityInstruction}`},
             {"role": "user", "content": userMessage}
           ]
         }, {
@@ -76,7 +93,9 @@ export default {
       userInput,
       sendMessage,
       newLine,
-      chatMessages
+      chatMessages,
+      personality,
+      personalityLabel
     };
   }
 };
