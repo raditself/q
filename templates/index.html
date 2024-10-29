@@ -2,16 +2,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8"/>
+    <link href="./favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta content="#000000" name="theme-color">
+    <meta content="AI-Powered Assistant with Code Execution and GitHub Integration" name="description"/>
     <title>AI-Powered Assistant</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .container { display: flex; gap: 20px; }
-        .component { flex: 1; border: 1px solid #ccc; padding: 10px; }
-        textarea { width: 100%; height: 100px; }
-        button { margin-top: 10px; }
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #f0f0f0; }
+        .container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .component { flex: 1 1 300px; border: 1px solid #ccc; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 100px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 8px; }
+        button { margin-right: 10px; padding: 8px 16px; background-color: #0366d6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        h1, h2 { color: #24292e; }
+        #chatResponse, #codeResponse, #terminalResponse { margin-top: 20px; background-color: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 4px; padding: 10px; }
     </style>
 </head>
 <body>
@@ -19,20 +25,20 @@
     <div class="container">
         <div class="component">
             <h2>Chat Interface</h2>
-            <textarea id="chatInput" placeholder="Enter your message"></textarea>
+            <textarea id="chatInput" placeholder="Enter your GitHub-related question"></textarea>
             <button onclick="sendChatMessage()">Send</button>
             <div id="chatResponse"></div>
         </div>
         <div class="component">
             <h2>Code Editor</h2>
-            <textarea id="codeInput" placeholder="Enter your code"></textarea>
+            <textarea id="codeInput" placeholder="Enter your code for completion or explanation"></textarea>
             <button onclick="completeCode()">Complete</button>
             <button onclick="explainCode()">Explain</button>
             <div id="codeResponse"></div>
         </div>
         <div class="component">
             <h2>Terminal</h2>
-            <textarea id="terminalInput" placeholder="Enter your command or description"></textarea>
+            <textarea id="terminalInput" placeholder="Enter a GitHub command or description"></textarea>
             <button onclick="suggestCommand()">Suggest</button>
             <button onclick="explainCommand()">Explain</button>
             <div id="terminalResponse"></div>
