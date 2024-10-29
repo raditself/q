@@ -37,7 +37,7 @@ export default {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
           model: "gpt-3.5-turbo",
           messages: [
-            {"role": "system", "content": "You are a helpful AI assistant with knowledge of programming, GitHub, and various other topics."},
+            {"role": "system", "content": "You are a helpful AI assistant with a broad knowledge base covering a wide range of topics including but not limited to science, history, current events, arts, culture, technology, and more. Provide informative and engaging responses on any subject."},
             {"role": "user", "content": userMessage}
           ]
         }, {
