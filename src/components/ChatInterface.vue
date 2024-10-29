@@ -1,12 +1,15 @@
+
 <template>
   <div class="chat-interface">
-    <div class="chat-messages">
+    <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="message.type">
-        {{ message.content }}
+        <strong>{{ message.type === 'user' ? 'You: ' : 'AI: ' }}</strong>
+        <pre v-if="message.type === 'ai' && message.isCode">{{ message.content }}</pre>
+        <span v-else v-html="message.content"></span>
       </div>
     </div>
     <div class="chat-input">
-      <input v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message...">
+      <textarea v-model="userInput" @keyup.enter.exact="sendMessage" @keyup.shift.enter="newLine" placeholder="Type your message... (Shift+Enter for new line)"></textarea>
       <button @click="sendMessage">Send</button>
     </div>
   </div>
@@ -14,35 +17,68 @@
 
 <script>
 import axios from 'axios';
+import { ref, onUpdated } from 'vue';
 
 export default {
   name: 'ChatInterface',
-  data() {
-    return {
-      messages: [],
-      userInput: '',
-    };
-  },
-  methods: {
-    async sendMessage() {
-      if (this.userInput.trim() === '') return;
+  setup() {
+    const messages = ref([]);
+    const userInput = ref('');
+    const chatMessages = ref(null);
 
-      this.messages.push({ type: 'user', content: this.userInput });
-      const userMessage = this.userInput;
-      this.userInput = '';
+    const sendMessage = async () => {
+      if (userInput.value.trim() === '') return;
+
+      const userMessage = userInput.value;
+      messages.value.push({ type: 'user', content: userMessage });
+      userInput.value = '';
 
       try {
-        const response = await axios.post('http://localhost:11434/api/generate', {
-          model: 'llama2',
-          prompt: userMessage,
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+          model: "gpt-3.5-turbo",
+          messages: [
+            {"role": "system", "content": "You are a helpful AI assistant with knowledge of programming, GitHub, and various other topics."},
+            {"role": "user", "content": userMessage}
+          ]
+        }, {
+          headers: {
+            'Authorization': `Bearer ${process.env.VUE_APP_OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          }
         });
-        this.messages.push({ type: 'ai', content: response.data.response });
+
+        const aiResponse = response.data.choices[0].message.content;
+        const isCode = aiResponse.includes('```');
+
+        messages.value.push({
+          type: 'ai',
+          content: isCode ? aiResponse.replace(/```\w*\n?/g, '') : aiResponse,
+          isCode: isCode
+        });
       } catch (error) {
         console.error('Error:', error);
-        this.messages.push({ type: 'error', content: 'An error occurred while processing your request.' });
+        messages.value.push({ type: 'error', content: 'An error occurred while processing your request.' });
       }
-    },
-  },
+    };
+
+    const newLine = () => {
+      userInput.value += '\n';
+    };
+
+    onUpdated(() => {
+      if (chatMessages.value) {
+        chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
+      }
+    });
+
+    return {
+      messages,
+      userInput,
+      sendMessage,
+      newLine,
+      chatMessages
+    };
+  }
 };
 </script>
 
@@ -57,6 +93,8 @@ export default {
   flex-grow: 1;
   overflow-y: auto;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-input {
@@ -64,22 +102,39 @@ export default {
   padding: 10px;
 }
 
-.chat-input input {
+.chat-input textarea {
   flex-grow: 1;
   margin-right: 10px;
+  resize: vertical;
+}
+
+.user, .ai, .error {
+  margin-bottom: 10px;
+  max-width: 80%;
+  padding: 8px;
+  border-radius: 8px;
 }
 
 .user {
-  text-align: right;
-  color: blue;
+  align-self: flex-end;
+  background-color: #DCF8C6;
 }
 
 .ai {
-  text-align: left;
-  color: green;
+  align-self: flex-start;
+  background-color: #E8E8E8;
 }
 
 .error {
-  color: red;
+  align-self: flex-start;
+  background-color: #FFCCCB;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 4px;
 }
 </style>
