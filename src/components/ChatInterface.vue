@@ -27,6 +27,7 @@ export default {
   name: 'ChatInterface',
   setup() {
     const messages = ref([]);
+    const conversationHistory = ref([]);
     const userInput = ref('');
     const chatMessages = ref(null);
     const personality = ref(0.5);
@@ -37,11 +38,33 @@ export default {
       return 'Balanced';
     });
 
+    const knowledgeBase = {
+      "AI": "Artificial Intelligence is the simulation of human intelligence processes by machines, especially computer systems.",
+      "Machine Learning": "Machine Learning is a subset of AI that provides systems the ability to automatically learn and improve from experience without being explicitly programmed.",
+      "Neural Networks": "Neural Networks are computing systems vaguely inspired by the biological neural networks that constitute animal brains.",
+    };
+
+    const retrieveKnowledge = (query) => {
+      const relevantInfo = Object.entries(knowledgeBase)
+        .filter(([key, value]) => query.toLowerCase().includes(key.toLowerCase()))
+        .map(([key, value]) => value)
+        .join(" ");
+      return relevantInfo ? `Relevant information: ${relevantInfo}` : "";
+    };
+
+    const fewShotExamples = [
+      {"role": "user", "content": "What is AI?"},
+      {"role": "assistant", "content": "AI, or Artificial Intelligence, refers to the development of computer systems that can perform tasks that typically require human intelligence. These tasks include visual perception, speech recognition, decision-making, and language translation. AI systems are designed to analyze their environment and take actions that maximize their chance of success at a given goal."},
+      {"role": "user", "content": "Can you explain machine learning?"},
+      {"role": "assistant", "content": "Machine Learning is a subset of AI that focuses on the development of algorithms and statistical models that enable computer systems to improve their performance on a specific task through experience. Instead of explicitly programming rules, machine learning allows a system to learn patterns from data and make predictions or decisions without being explicitly programmed to perform the task."},
+    ];
+
     const sendMessage = async () => {
       if (userInput.value.trim() === '') return;
 
       const userMessage = userInput.value;
       messages.value.push({ type: 'user', content: userMessage });
+      conversationHistory.value.push({ role: 'user', content: userMessage });
       userInput.value = '';
 
       const personalityInstruction = personality.value < 0.4 ? 
@@ -50,12 +73,16 @@ export default {
         "Provide detailed and comprehensive responses." : 
         "Provide balanced responses with moderate detail.";
 
+      const relevantInfo = retrieveKnowledge(userMessage);
+
       try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
           model: "gpt-4",
           messages: [
             {"role": "system", "content": `You are a highly capable AI assistant with a vast knowledge base covering a wide range of topics. Your responses should be informative, engaging, and nuanced. Always strive to provide accurate information, and when appropriate, offer multiple perspectives on complex issues. If you're unsure about something, admit it and suggest ways to find more information. Engage in thoughtful analysis and be prepared to break down complex topics into understandable parts. Always maintain high ethical standards in your responses. ${personalityInstruction}`},
-            {"role": "user", "content": userMessage}
+            ...fewShotExamples,
+            ...conversationHistory.value,
+            {"role": "system", "content": relevantInfo}
           ]
         }, {
           headers: {
@@ -69,9 +96,12 @@ export default {
 
         messages.value.push({
           type: 'ai',
-          content: isCode ? aiResponse.replace(/```\w*\n?/g, '') : aiResponse,
+          content: isCode ? aiResponse.replace(/```\w*
+?/g, '') : aiResponse,
           isCode: isCode
         });
+
+        conversationHistory.value.push({ role: 'assistant', content: aiResponse });
       } catch (error) {
         console.error('Error:', error);
         messages.value.push({ type: 'error', content: 'An error occurred while processing your request.' });
