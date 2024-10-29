@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef } from 'react';
 import Editor from "@monaco-editor/react";
 
@@ -7,6 +8,7 @@ const CodeEditor = () => {
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const editorRef = useRef(null);
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -23,6 +25,7 @@ const CodeEditor = () => {
 
   const executeCode = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch('/api/execute-code', {
         method: 'POST',
@@ -40,7 +43,8 @@ const CodeEditor = () => {
       setOutput(data.output);
     } catch (error) {
       console.error('Error executing code:', error);
-      setOutput('An error occurred while executing the code');
+      setError('An error occurred while executing the code');
+      setOutput('');
     } finally {
       setIsLoading(false);
     }
@@ -53,12 +57,12 @@ const CodeEditor = () => {
   };
 
   return (
-    <div className="code-editor">
-      <div className="mb-4">
+    <div className="code-editor bg-gray-800 text-white p-4 rounded-lg">
+      <div className="mb-4 flex items-center">
         <select
           value={language}
           onChange={handleLanguageChange}
-          className="p-2 border rounded"
+          className="p-2 bg-gray-700 text-white rounded mr-2"
         >
           <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
@@ -67,14 +71,14 @@ const CodeEditor = () => {
         </select>
         <button
           onClick={executeCode}
-          className="ml-2 p-2 bg-blue-500 text-white rounded"
+          className="px-4 py-2 bg-blue-500 text-white rounded mr-2 hover:bg-blue-600 transition-colors"
           disabled={isLoading}
         >
           {isLoading ? 'Executing...' : 'Execute Code'}
         </button>
         <button
           onClick={formatCode}
-          className="ml-2 p-2 bg-green-500 text-white rounded"
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
         >
           Format Code
         </button>
@@ -91,15 +95,19 @@ const CodeEditor = () => {
           formatOnPaste: true,
           formatOnType: true,
           autoIndent: 'full',
+          theme: 'vs-dark',
         }}
       />
-      <div className="mt-4 p-4 bg-gray-100 rounded">
-        <h3 className="font-bold">Output:</h3>
-        <pre>{output}</pre>
+      <div className="mt-4 p-4 bg-gray-700 rounded">
+        <h3 className="font-bold mb-2">Output:</h3>
+        {isLoading && <p className="text-yellow-400">Executing code...</p>}
+        {error && <p className="text-red-400">{error}</p>}
+        {!isLoading && !error && <pre className="whitespace-pre-wrap">{output}</pre>}
       </div>
     </div>
   );
 };
 
 export default CodeEditor;
+
 
