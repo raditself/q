@@ -12,8 +12,9 @@ This project is an AI-powered assistant that can chat with users, execute Python
 - AI-enhanced GitHub command suggestions and explanations
 - Rate limiting to prevent abuse
 - Containerized application for easy deployment
+- Web-based user interface for interacting with AI components
 
-## New AI-Powered Components
+## AI-Powered Components
 
 ### ChatInterface
 - Provides context-aware responses for GitHub-related queries
@@ -32,60 +33,50 @@ This project is an AI-powered assistant that can chat with users, execute Python
 - Docker
 - Docker Compose
 - Ollama (for local AI model execution)
+- Python 3.7+
+- Flask
 
 ## Setup
 
 1. Clone the repository:
    ```
-   git clone https://github.com/raditself/x.git
-   cd x
+   git clone https://github.com/raditself/q.git
+   cd q
    ```
 
 2. Create a `.env` file in the project root and add your Ollama endpoint:
    ```
    OLLAMA_ENDPOINT=http://localhost:11434
-   DATABASE_URL=postgresql://username:password@host:port/database
    ```
 
-3. Build and run the Docker containers:
+3. Install the required Python packages:
    ```
-   docker-compose up --build
+   pip install -r requirements.txt
    ```
 
-4. The application will be available at `http://localhost:5000`
+4. Run the Flask application:
+   ```
+   python app.py
+   ```
+
+5. Open a web browser and navigate to `http://localhost:5000` to use the AI-powered assistant.
 
 ## Usage
 
-1. Register a new user account
-2. Log in with your credentials
-3. Start chatting with the AI assistant for GitHub-related queries
-4. Use the code editor to write, complete, and explain GitHub-related code
-5. Use the terminal to get GitHub command suggestions and explanations
-
-## Security Notes
-
-- The code execution is performed in a sandboxed Docker container with limited resources and network access.
-- User passwords are hashed before being stored in the database.
-- Rate limiting is implemented to prevent abuse of the AI chat and code execution features.
+1. Chat Interface: Enter your GitHub-related questions and receive AI-powered responses.
+2. Code Editor: Input code snippets for completion or explanation.
+3. Terminal: Enter command descriptions or actual commands for suggestions or explanations.
 
 ## Development
 
 To run the application in development mode:
 
-1. Install the required Python packages:
+1. Set the Flask environment to development:
    ```
-   pip install -r requirements.txt
-   ```
-
-2. Set up the environment variables:
-   ```
-   export FLASK_APP=app.py
    export FLASK_ENV=development
-   export OLLAMA_ENDPOINT=http://localhost:11434
-   export DATABASE_URL=postgresql://username:password@host:port/database
    ```
 
-3. Run the Flask development server:
+2. Run the Flask development server:
    ```
    flask run
    ```
@@ -97,6 +88,18 @@ To run the unit tests:
 ```
 python -m unittest discover tests
 ```
+
+## Docker Deployment
+
+1. Build the Docker image:
+   ```
+   docker build -t ai-powered-assistant .
+   ```
+
+2. Run the Docker container:
+   ```
+   docker run -p 5000:5000 ai-powered-assistant
+   ```
 
 ## License
 
